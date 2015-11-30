@@ -29,6 +29,8 @@ class BeSimpleI18nRoutingExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('be_simple_i18n_routing.current_locale', $config['locale']);
+
         if (isset($config['attribute_translator'])) {
             switch ($config['attribute_translator']['type']) {
                 case 'service':

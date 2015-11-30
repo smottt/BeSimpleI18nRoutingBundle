@@ -8,9 +8,19 @@ use Symfony\Component\Routing\Loader\YamlFileLoader as BaseYamlFileLoader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Config\FileLocatorInterface;
 
 class YamlFileLoader extends BaseYamlFileLoader
 {
+	protected $currentLocale;
+
+	public function __construct(FileLocatorInterface $locator, $currentLocale)
+	{
+		parent::__construct($locator);
+
+		$this->currentLocale = $currentLocale;
+	}
+
     private static $availableKeys = array(
         'locales', 'resource', 'type', 'prefix', 'pattern', 'path', 'host', 'schemes', 'methods', 'defaults', 'requirements', 'options',
     );
@@ -42,7 +52,13 @@ class YamlFileLoader extends BaseYamlFileLoader
         $schemes      = isset($config['schemes']) ? $config['schemes'] : array();
         $methods      = isset($config['methods']) ? $config['methods'] : array();
 
-        $route = new I18nRoute($name, $config['locales'], $defaults, $requirements, $options, $host, $schemes, $methods);
+        $filteredLocales = array_intersect_key($config['locales'], array_flip(array($this->currentLocale)));
+
+        if (empty($filteredLocales)) {
+        	return;
+        }
+
+        $route = new I18nRoute($name, $filteredLocales, $defaults, $requirements, $options, $host, $schemes, $methods);
         $collection->addCollection($route->getCollection());
     }
 
@@ -52,7 +68,7 @@ class YamlFileLoader extends BaseYamlFileLoader
     protected function validate($config, $name, $path)
     {
         if (!is_array($config)) {
-            throw new \InvalidArgumentException(sprintf('The definition of "%s" in "%s" must be a YAML array. hihi', $name, $path));
+            throw new \InvalidArgumentException(sprintf('The definition of "%s" in "%s" must be a YAML array.', $name, $path));
         }
 
         $extraKeys = array_diff(array_keys($config), self::$availableKeys);

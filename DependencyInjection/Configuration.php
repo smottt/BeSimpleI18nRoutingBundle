@@ -28,6 +28,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+            	->scalarNode('locale')->isRequired()->end()
                 ->arrayNode('attribute_translator')
                     ->children()
                         ->scalarNode('type')->isRequired()->end()

@@ -29,7 +29,7 @@ class Router implements RouterInterface
      */
     public function __construct(RouterInterface $router, AttributeTranslatorInterface $translator = null)
     {
-        $this->router = $router;
+        $this->router     = $router;
         $this->translator = $translator;
     }
 
